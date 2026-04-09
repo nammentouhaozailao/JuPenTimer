@@ -26,16 +26,9 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    # 3. 缓存 Gradle
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+    # 3. 验证 Gradle Wrapper
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v1
 
     # 4. 赋予 gradlew 执行权限
     - name: Grant execute permission for gradlew
@@ -43,19 +36,23 @@ jobs:
 
     # 5. 构建 Debug APK
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug --stacktrace --info
 
-    # 6. 上传 APK（作为Artifacts）
+    # 6. 验证 APK 存在
+    - name: Verify APK exists
+      run: |
+        ls -la app/build/outputs/apk/debug/ || echo "APK not found"
+
+    # 7. 上传 APK（作为Artifacts）
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: JuPenTimer-Debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/*.apk
         retention-days: 30
 
-    # 7. 输出构建信息
+    # 8. 输出构建信息
     - name: Print build info
       run: |
         echo "✅ APK构建成功！"
-        echo "📦 文件位置: app/build/outputs/apk/debug/app-debug.apk"
         ls -lh app/build/outputs/apk/debug/
