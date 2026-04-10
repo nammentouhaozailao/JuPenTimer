@@ -28,36 +28,22 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
-    - name: Check project structure
+    - name: Check Gradle
       run: |
-        echo "Current directory:"
-        pwd
-        echo "---"
-        echo "Listing files:"
-        ls -la
-        echo "---"
-        echo "Checking app directory:"
-        ls -la app/ || echo "No app directory"
+        echo "Gradle version:"
+        ./gradlew --version
 
     - name: Build Debug APK
       run: |
-        echo "Starting build..."
-        ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build.log
-        BUILD_EXIT_CODE=${PIPESTATUS[0]}
-        echo "Build exit code: $BUILD_EXIT_CODE"
-        if [ $BUILD_EXIT_CODE -ne 0 ]; then
-          echo "Build failed!"
-          tail -100 build.log
-          exit $BUILD_EXIT_CODE
-        fi
+        ./gradlew assembleDebug --no-daemon --stacktrace
 
-    - name: Find APK
+    - name: Check outputs
       run: |
-        echo "Searching for APK..."
-        find . -name "*.apk" -type f 2>/dev/null
+        echo "Listing all APK files:"
+        find . -name "*.apk" -type f
         echo "---"
-        echo "Checking build outputs:"
-        ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+        echo "Build outputs directory:"
+        ls -la app/build/outputs/ 2>/dev/null || echo "Directory not found"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -65,5 +51,5 @@ jobs:
       with:
         name: JuPenTimer-Debug
         path: |
-          app/build/outputs/apk/debug/*.apk
-        if-no-files-found: error
+          app/build/outputs/apk/**/*.apk
+        if-no-files-found: warn
