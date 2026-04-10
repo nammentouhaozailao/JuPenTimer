@@ -3,6 +3,7 @@ package com.example.jupentimer.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,9 +37,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.draw.Stroke
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jupentimer.data.TimerState
@@ -93,7 +96,6 @@ fun TimerScreen(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 状态显示
             StatusCard(
                 timerState = timerState,
                 modifier = Modifier.padding(16.dp)
@@ -101,7 +103,6 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 倒计时圆圈
             TimerCircle(
                 timerState = timerState,
                 modifier = Modifier.size(280.dp)
@@ -109,7 +110,6 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // 进度信息
             ProgressInfo(
                 timerState = timerState,
                 totalRounds = totalRounds
@@ -117,7 +117,6 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 控制按钮
             ControlButtons(
                 timerState = timerState,
                 onStart = { viewModel.startTimer() },
@@ -137,16 +136,15 @@ fun StatusCard(
     timerState: TimerState,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White.copy(alpha = 0.2f))
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = timerState.getStateName(),
                 fontSize = 24.sp,
@@ -196,7 +194,6 @@ fun TimerCircle(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // 背景圆
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -204,7 +201,6 @@ fun TimerCircle(
                 .background(Color.White.copy(alpha = 0.2f))
         )
 
-        // 进度圆
         CircularProgressIndicator(
             progress = animatedProgress,
             modifier = Modifier.fillMaxSize(),
@@ -212,7 +208,6 @@ fun TimerCircle(
             strokeWidth = 12.dp
         )
 
-        // 时间文字
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = displayTime.toString().padStart(2, '0'),
@@ -257,7 +252,6 @@ fun ProgressInfo(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 进度条
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -293,7 +287,6 @@ fun ControlButtons(
     ) {
         when (timerState) {
             is TimerState.Ready, is TimerState.Finished -> {
-                // 开始按钮
                 Button(
                     onClick = onStart,
                     modifier = Modifier
@@ -313,7 +306,6 @@ fun ControlButtons(
             }
 
             is TimerState.Paused -> {
-                // 继续、重置、停止
                 Button(
                     onClick = onResume,
                     modifier = Modifier
@@ -367,7 +359,6 @@ fun ControlButtons(
             }
 
             is TimerState.Working, is TimerState.Resting, is TimerState.Countdown -> {
-                // 暂停、重置、停止
                 Button(
                     onClick = onPause,
                     modifier = Modifier
@@ -423,24 +414,6 @@ fun ControlButtons(
     }
 }
 
-// 简单的卡片组件
-@Composable
-fun Card(
-    modifier: Modifier = Modifier,
-    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(8.dp),
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(Color.White.copy(alpha = 0.2f)),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
-    }
-}
-
-// 简单的圆形进度条
 @Composable
 fun CircularProgressIndicator(
     progress: Float,
@@ -450,32 +423,28 @@ fun CircularProgressIndicator(
 ) {
     val sweepAngle = progress * 360f
 
-    androidx.compose.foundation.Canvas(modifier = modifier) {
-        val stroke = androidx.compose.ui.graphics.StrokeCap.Round
+    Canvas(modifier = modifier) {
+        val stroke = StrokeCap.Round
         val size = size.minDimension
-        val radius = (size - strokeWidth.toPx()) / 2
-        val center = androidx.compose.ui.geometry.Offset(size / 2, size / 2)
 
-        // 背景圆弧
         drawArc(
             color = color.copy(alpha = 0.2f),
             startAngle = 0f,
             sweepAngle = 360f,
             useCenter = false,
-            style = androidx.compose.ui.graphics.draw.Stroke(strokeWidth.toPx(), cap = stroke),
-            size = androidx.compose.ui.geometry.Size(size, size),
-            topLeft = androidx.compose.ui.geometry.Offset(0f, 0f)
+            style = Stroke(strokeWidth.toPx(), cap = stroke),
+            size = Size(size, size),
+            topLeft = Offset(0f, 0f)
         )
 
-        // 进度圆弧
         drawArc(
             color = color,
             startAngle = -90f,
             sweepAngle = -sweepAngle,
             useCenter = false,
-            style = androidx.compose.ui.graphics.draw.Stroke(strokeWidth.toPx(), cap = stroke),
-            size = androidx.compose.ui.geometry.Size(size, size),
-            topLeft = androidx.compose.ui.geometry.Offset(0f, 0f)
+            style = Stroke(strokeWidth.toPx(), cap = stroke),
+            size = Size(size, size),
+            topLeft = Offset(0f, 0f)
         )
     }
 }

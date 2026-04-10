@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    JuPenTimerApp()
+                    AppContent()
                 }
             }
         }
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun JuPenTimerApp() {
+fun AppContent() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val viewModel: TimerViewModel = viewModel(
