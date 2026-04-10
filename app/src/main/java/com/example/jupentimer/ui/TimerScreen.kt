@@ -1,18 +1,15 @@
 package com.example.jupentimer.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,7 +32,6 @@ fun TimerScreen(
     onNavigateToSettings: () -> Unit
 ) {
     val timerState by viewModel.timerState.collectAsState()
-    val settings by viewModel.settings.collectAsState()
     val totalRounds by viewModel.totalRounds.collectAsState()
 
     val backgroundColor = when (timerState.getColorType()) {
@@ -152,8 +148,6 @@ fun TimerScreen(
                 else -> 0
             }
 
-            val progress = if (totalRounds > 0) currentRound.toFloat() / totalRounds else 0f
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -164,15 +158,6 @@ fun TimerScreen(
                     text = "总进度: $currentRound / $totalRounds 轮",
                     fontSize = 16.sp,
                     color = Color.White
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.White,
-                    trackColor = Color.White.copy(alpha = 0.3f),
                 )
             }
 
@@ -189,104 +174,55 @@ fun TimerScreen(
                     is TimerState.Ready, is TimerState.Finished -> {
                         Button(
                             onClick = { viewModel.startTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFF4CAF50)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "开始"
-                            )
+                            Text("开始")
                         }
                     }
 
                     is TimerState.Paused -> {
                         Button(
                             onClick = { viewModel.resumeTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFF2196F3)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "继续"
-                            )
+                            Text("继续")
                         }
 
                         Button(
                             onClick = { viewModel.resetTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFF757575)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "重置"
-                            )
+                            Text("重置")
                         }
 
                         Button(
                             onClick = { viewModel.stopTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFFE53935)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Stop,
-                                contentDescription = "停止"
-                            )
+                            Text("停止")
                         }
                     }
 
                     is TimerState.Working, is TimerState.Resting, is TimerState.Countdown -> {
                         Button(
                             onClick = { viewModel.pauseTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFFFF9800)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Pause,
-                                contentDescription = "暂停"
-                            )
+                            Text("暂停")
                         }
 
                         Button(
                             onClick = { viewModel.resetTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFF757575)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "重置"
-                            )
+                            Text("重置")
                         }
 
                         Button(
                             onClick = { viewModel.stopTimer() },
-                            modifier = Modifier.size(80.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = Color(0xFFE53935)
-                            )
+                            modifier = Modifier.size(80.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Stop,
-                                contentDescription = "停止"
-                            )
+                            Text("停止")
                         }
                     }
                 }
