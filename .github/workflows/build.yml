@@ -28,28 +28,23 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
-    - name: Check Gradle
-      run: |
-        echo "Gradle version:"
-        ./gradlew --version
-
     - name: Build Debug APK
       run: |
-        ./gradlew assembleDebug --no-daemon --stacktrace
+        set -x
+        ./gradlew assembleDebug --no-daemon --stacktrace 2>&1
+      shell: bash
 
     - name: Check outputs
       run: |
-        echo "Listing all APK files:"
-        find . -name "*.apk" -type f
-        echo "---"
-        echo "Build outputs directory:"
-        ls -la app/build/outputs/ 2>/dev/null || echo "Directory not found"
+        echo "=== Listing all files ==="
+        find . -type f -name "*.apk" 2>/dev/null
+        echo "=== Build directory ==="
+        ls -la app/build/ 2>/dev/null || echo "No build dir"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: JuPenTimer-Debug
-        path: |
-          app/build/outputs/apk/**/*.apk
+        path: app/build/outputs/apk/**/*.apk
         if-no-files-found: warn
