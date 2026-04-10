@@ -17,26 +17,17 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Fix gradlew and build
+    - name: Build with Gradle
       run: |
-        # 修复 Windows 换行符问题
-        sed -i 's/\r$//' gradlew
+        # 重新下载 gradlew，确保 LF 换行符
+        rm -f gradlew
+        curl -L -o gradlew https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradlew
         chmod +x gradlew
-        # 验证 gradlew
-        head -5 gradlew
-        # 执行构建
+        # 构建
         ./gradlew assembleDebug --no-daemon
-      shell: bash
-
-    - name: Check build outputs
-      run: |
-        echo "=== Build outputs ==="
-        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "Directory not found"
-        find . -name "*.apk" -type f 2>/dev/null
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: JuPenTimer-Debug
         path: app/build/outputs/apk/debug/app-debug.apk
-        if-no-files-found: warn
