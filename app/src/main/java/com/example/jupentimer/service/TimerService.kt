@@ -106,7 +106,7 @@ class TimerService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification())
 
         currentRound = 0
-        val totalRounds = settings.getTotalRounds()
+        val totalRounds = getSafeTotalRounds()
 
         timerJob = serviceScope.launch {
             // 倒计时阶段
@@ -238,11 +238,21 @@ class TimerService : Service() {
         notificationManager.createNotificationChannel(channel)
     }
 
+    private fun getSafeTotalRounds(): Int {
+        return try {
+            val rounds = settings.getTotalRounds()
+            if (rounds > 0) rounds else 40
+        } catch (e: Exception) {
+            40
+        }
+    }
+
     private fun buildNotification(): Notification {
         val state = _timerState.value
+        val totalRounds = getSafeTotalRounds()
         val title = when (state) {
-            is TimerState.Working -> "训练中 - 第 ${state.round}/${settings.getTotalRounds()} 轮"
-            is TimerState.Resting -> "休息中 - 第 ${state.round}/${settings.getTotalRounds()} 轮"
+            is TimerState.Working -> "训练中 - 第 ${state.round}/$totalRounds 轮"
+            is TimerState.Resting -> "休息中 - 第 ${state.round}/$totalRounds 轮"
             is TimerState.Paused -> "已暂停"
             is TimerState.Finished -> "训练完成！"
             else -> "举盆计时器"

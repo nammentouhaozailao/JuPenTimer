@@ -114,7 +114,9 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         if (!settings.soundEnabled) return
         try {
             mediaPlayer?.release()
-            mediaPlayer = MediaPlayer.create(context, android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+            val uri = android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
+            mediaPlayer = MediaPlayer.create(context, uri)
+            mediaPlayer?.setOnCompletionListener { it.release() }
             mediaPlayer?.start()
         } catch (e: Exception) {
             Log.e("SoundManager", "Error playing beep sound", e)
@@ -125,9 +127,9 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         if (!settings.soundEnabled) return
         try {
             mediaPlayer?.release()
-            // 使用系统滴答声
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             mediaPlayer = MediaPlayer.create(context, uri)
+            mediaPlayer?.setOnCompletionListener { it.release() }
             mediaPlayer?.start()
         } catch (e: Exception) {
             Log.e("SoundManager", "Error playing tick sound", e)
@@ -138,10 +140,10 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         if (!settings.soundEnabled) return
         try {
             mediaPlayer?.release()
-            // 使用不同的音效
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             mediaPlayer = MediaPlayer.create(context, uri)
             mediaPlayer?.setVolume(0.5f, 0.5f)
+            mediaPlayer?.setOnCompletionListener { it.release() }
             mediaPlayer?.start()
         } catch (e: Exception) {
             Log.e("SoundManager", "Error playing rest sound", e)
@@ -154,6 +156,7 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
             mediaPlayer?.release()
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             mediaPlayer = MediaPlayer.create(context, uri)
+            mediaPlayer?.setOnCompletionListener { it.release() }
             mediaPlayer?.start()
         } catch (e: Exception) {
             Log.e("SoundManager", "Error playing finish sound", e)
