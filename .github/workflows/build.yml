@@ -28,19 +28,42 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
+    - name: Check project structure
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "---"
+        echo "Listing files:"
+        ls -la
+        echo "---"
+        echo "Checking app directory:"
+        ls -la app/ || echo "No app directory"
+
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --no-daemon
+      run: |
+        echo "Starting build..."
+        ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build.log
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        echo "Build exit code: $BUILD_EXIT_CODE"
+        if [ $BUILD_EXIT_CODE -ne 0 ]; then
+          echo "Build failed!"
+          tail -100 build.log
+          exit $BUILD_EXIT_CODE
+        fi
 
     - name: Find APK
       run: |
         echo "Searching for APK..."
-        find . -name "*.apk" -type f
+        find . -name "*.apk" -type f 2>/dev/null
         echo "---"
-        ls -la app/build/outputs/apk/ || true
+        echo "Checking build outputs:"
+        ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: JuPenTimer-Debug
         path: |
-          **/*.apk
+          app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
