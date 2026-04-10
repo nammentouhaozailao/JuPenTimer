@@ -64,9 +64,8 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
                 speak("开始训练")
             }
             is TimerState.Resting -> {
-                playRestSound()
+                // 休息开始时不播放声音，只在最后5秒提醒
                 vibrate(VIBRATE_PATTERN_REST)
-                speak("休息")
             }
             is TimerState.Finished -> {
                 playFinishSound()
@@ -91,8 +90,8 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
             seconds in 1..10 && state is TimerState.Working -> {
                 speak("$seconds")
             }
-            // 休息最后3秒
-            seconds in 1..3 && state is TimerState.Resting -> {
+            // 休息最后5秒倒计时
+            seconds in 1..5 && state is TimerState.Resting -> {
                 speak("$seconds")
             }
             // 每10秒报一次（训练时）
