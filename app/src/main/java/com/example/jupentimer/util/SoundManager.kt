@@ -60,16 +60,14 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         when (state) {
             is TimerState.Working -> {
                 playBeepSound()
-                vibrate(VIBRATE_PATTERN_WORK)
                 speak("开始训练")
             }
             is TimerState.Resting -> {
-                // 休息开始时不播放声音，只在最后5秒提醒
-                vibrate(VIBRATE_PATTERN_REST)
+                playRestSound()
+                speak("休息")
             }
             is TimerState.Finished -> {
                 playFinishSound()
-                vibrate(VIBRATE_PATTERN_FINISH)
                 speak("训练完成，辛苦了")
             }
             is TimerState.Countdown -> {
@@ -86,13 +84,13 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         if (!settings.ttsEnabled) return
 
         when {
-            // 最后10秒倒计时
+            // 训练最后10秒倒计时
             seconds in 1..10 && state is TimerState.Working -> {
                 speak("$seconds")
             }
-            // 休息最后5秒倒计时
+            // 休息最后5秒，响5次（滴答声）
             seconds in 1..5 && state is TimerState.Resting -> {
-                speak("$seconds")
+                playTickSound()
             }
             // 每10秒报一次（训练时）
             seconds % 10 == 0 && seconds > 10 && state is TimerState.Working -> {
