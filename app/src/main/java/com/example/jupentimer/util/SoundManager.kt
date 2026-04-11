@@ -137,9 +137,9 @@ class SoundManager(private val context: Context) : TextToSpeech.OnInitListener {
         if (!settings.soundEnabled) return
         try {
             mediaPlayer?.release()
-            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            // 使用简单的通知提示音，响一声
+            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             mediaPlayer = MediaPlayer.create(context, uri)
-            mediaPlayer?.setVolume(0.5f, 0.5f)
             mediaPlayer?.setOnCompletionListener { it.release() }
             mediaPlayer?.start()
         } catch (e: Exception) {
